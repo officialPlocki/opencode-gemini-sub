@@ -30,7 +30,7 @@
     "oauth"
   ],
   "scripts": {
-    "test": "node --test test/",
+    "test": "node --test test/*.test.ts",
     "typecheck": "tsc --noEmit",
     "login": "node bin/gemini-sub.js login",
     "status": "node bin/gemini-sub.js status",
