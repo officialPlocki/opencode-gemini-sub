@@ -1,6 +1,6 @@
 {
   "name": "opencode-gemini-sub",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "OpenCode V2 plugin: use a Gemini subscription through the Antigravity or Gemini CLI client protocol, with full tool support, model discovery and quota-aware auto-continue.",
   "type": "module",
   "license": "MIT",

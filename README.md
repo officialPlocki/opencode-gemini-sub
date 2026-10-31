@@ -24,7 +24,7 @@
 > Standard/Enterprise subscriptions only. If you need the lowest-risk setup, use the official
 > Gemini API key or Vertex AI provider instead.
 >
-> **No warranty and no liability.** No guarantee is given for the risk assessment in
+> **No warranty and no liability.** No guarantee is given for the information in
 > [`LEGAL.md`](LEGAL.md). To the maximum extent permitted by law, the authors accept no
 > liability for damages, data loss, account restrictions, suspensions, terminations, charges
 > or any other loss arising from the use of this software. Use at your own risk.
@@ -293,9 +293,9 @@ See [`SECURITY.md`](SECURITY.md) for reporting and details.
 
 ## Disclaimer
 
-No warranty, guarantee or representation is made regarding the assessments in this repository
-(including `LEGAL.md`). They are general information, not legal advice, and may be incomplete or
-outdated. Obtain independent legal advice for your situation.
+No warranty, guarantee or representation is made regarding the information in this repository
+(including `LEGAL.md`). It is general information for users, not legal advice, and may be
+incomplete or outdated. Obtain independent legal advice for your situation.
 
 To the maximum extent permitted by applicable law, the authors and contributors accept **no
 liability** for any direct, indirect, incidental, special, consequential or punitive damages,
@@ -307,8 +307,8 @@ are solely responsible for compliance with Google's terms and applicable law.
 <details>
 <summary>Haftungsausschluss (Deutsch)</summary>
 
-Die in diesem Repository enthaltenen Einschätzungen – insbesondere in `LEGAL.md` – dienen
-ausschließlich der allgemeinen Information und sind keine Rechtsberatung. Für Richtigkeit,
+Die in diesem Repository enthaltenen Informationen – insbesondere in `LEGAL.md` – dienen
+ausschließlich der allgemeinen Orientierung und sind keine Rechtsberatung. Für Richtigkeit,
 Vollständigkeit, Aktualität und Eignung wird keine Gewähr übernommen.
 
 Soweit gesetzlich zulässig, wird keine Haftung für Schäden, Datenverluste, entgangenen Gewinn,
@@ -324,8 +324,8 @@ This project is an independent, clean-room implementation. No Google source code
 vendored. It is not affiliated with Google or the OpenCode project, and it comes with no
 warranty. Using it may violate Google's terms and can lead to account restrictions.
 
-Read [`LEGAL.md`](LEGAL.md) before publishing, redistributing or using it commercially. Nothing
-in this repository is legal advice.
+See [`LEGAL.md`](LEGAL.md) for what the plugin does with your account, what Google may do, and
+the liability terms. Nothing in this repository is legal advice.
 
 ## Development
 
