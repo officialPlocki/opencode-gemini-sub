@@ -1,0 +1,66 @@
+{
+  "name": "opencode-gemini-sub",
+  "version": "0.2.6",
+  "description": "OpenCode V2 plugin: use a Gemini subscription through the Antigravity or Gemini CLI client protocol, with full tool support, model discovery and quota-aware auto-continue.",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts",
+    "./rpc": "./src/rpc.ts",
+    "./tui": "./src/tui.tsx"
+  },
+  "bin": {
+    "opencode-gemini-sub": "./bin/gemini-sub.js"
+  },
+  "files": [
+    "src",
+    "bin",
+    "docs",
+    "README.md",
+    "LEGAL.md",
+    "SECURITY.md"
+  ],
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "gemini",
+    "antigravity",
+    "gemini-cli",
+    "cloud-code-assist",
+    "oauth"
+  ],
+  "scripts": {
+    "test": "node --test test/",
+    "typecheck": "tsc --noEmit",
+    "login": "node bin/gemini-sub.js login",
+    "status": "node bin/gemini-sub.js status",
+    "install:local": "V=$(node -p \"require('./package.json').version\"); D=\"$HOME/.local/share/opencode-gemini-sub/$V\"; mkdir -p \"$D\"; rsync -a --delete --exclude node_modules --exclude package-lock.json src bin docs package.json README.md LEGAL.md SECURITY.md LICENSE \"$D/\"; cd \"$D\" && npm install --omit=dev --silent && echo \"installed to $D\""
+  },
+  "dependencies": {
+    "@opencode/plugin": "^2.2.5"
+  },
+  "devDependencies": {
+    "@opencode/theme": "^2.2.5",
+    "@opentui/core": "^0.8.1",
+    "@opentui/solid": "^0.8.1",
+    "@types/node": "^24.0.0",
+    "solid-js": "^1.9.18",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "peerDependencies": {
+    "@opentui/core": ">=0.6.6",
+    "@opentui/solid": ">=0.6.6",
+    "solid-js": ">=1.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/officialPlocki/opencode-gemini-sub.git"
+  },
+  "homepage": "https://github.com/officialPlocki/opencode-gemini-sub#readme",
+  "bugs": {
+    "url": "https://github.com/officialPlocki/opencode-gemini-sub/issues"
+  }
+}
