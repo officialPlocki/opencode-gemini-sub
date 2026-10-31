@@ -60,7 +60,29 @@ client does not receive the same entitlements.
 * Be prepared to make the repository private or remove it in response to a complaint.
 * Do not connect it to a company identity without legal review.
 
-## Warranty
+## No warranty for this assessment
 
-The software is provided "as is", without warranty of any kind. The authors are not liable for
-account restrictions, data loss or any other damages arising from its use. See `LICENSE`.
+This risk assessment is general information, not legal advice. No warranty, guarantee or
+representation is made regarding its accuracy, completeness, timeliness or applicability to your
+situation. Obtain independent legal advice before relying on it.
+
+## Disclaimer and limitation of liability
+
+To the maximum extent permitted by applicable law, the authors and contributors accept **no
+liability** for any direct, indirect, incidental, special, consequential or punitive damages,
+loss of data, loss of profits, business interruption, account restrictions, suspensions,
+terminations, billing charges or other losses arising from the use of or inability to use this
+software, even if advised of the possibility of such damages. You use it at your own risk and
+are solely responsible for compliance with Google's terms and applicable law.
+
+### Haftungsausschluss (Deutsch)
+
+Die in diesem Repository enthaltenen Einschätzungen – insbesondere in dieser Datei – dienen
+ausschließlich der allgemeinen Information und sind keine Rechtsberatung. Für Richtigkeit,
+Vollständigkeit, Aktualität und Eignung wird keine Gewähr übernommen. Ziehen Sie eigenen
+Rechtsrat hinzu.
+
+Soweit gesetzlich zulässig, wird keine Haftung für Schäden, Datenverluste, entgangenen Gewinn,
+Betriebsunterbrechungen, Kontosperren, Kontokündigungen, Abrechnungen oder sonstige Nachteile
+übernommen, die aus der Nutzung oder Nichtnutzung dieser Software entstehen – auch bei
+Kenntnis der Möglichkeit solcher Schäden. Die Nutzung erfolgt auf eigenes Risiko.

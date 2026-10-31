@@ -23,6 +23,11 @@
 > the individual tier (`UNSUPPORTED_CLIENT`); it remains useful for paid Code Assist
 > Standard/Enterprise subscriptions only. If you need the lowest-risk setup, use the official
 > Gemini API key or Vertex AI provider instead.
+>
+> **No warranty and no liability.** No guarantee is given for the risk assessment in
+> [`LEGAL.md`](LEGAL.md). To the maximum extent permitted by law, the authors accept no
+> liability for damages, data loss, account restrictions, suspensions, terminations, charges
+> or any other loss arising from the use of this software. Use at your own risk.
 
 ## Why
 
@@ -285,6 +290,33 @@ Server logs contain `[gemini-sub] ...` lines. Set `debug: true` for per-request 
 - Treat the credential files like passwords. Revoke access from your Google account if in doubt.
 
 See [`SECURITY.md`](SECURITY.md) for reporting and details.
+
+## Disclaimer
+
+No warranty, guarantee or representation is made regarding the assessments in this repository
+(including `LEGAL.md`). They are general information, not legal advice, and may be incomplete or
+outdated. Obtain independent legal advice for your situation.
+
+To the maximum extent permitted by applicable law, the authors and contributors accept **no
+liability** for any direct, indirect, incidental, special, consequential or punitive damages,
+loss of data, loss of profits, business interruption, account restrictions, suspensions,
+terminations, billing charges or other losses arising from the use of or inability to use this
+software — even if advised of the possibility of such damages. You use it at your own risk and
+are solely responsible for compliance with Google's terms and applicable law.
+
+<details>
+<summary>Haftungsausschluss (Deutsch)</summary>
+
+Die in diesem Repository enthaltenen Einschätzungen – insbesondere in `LEGAL.md` – dienen
+ausschließlich der allgemeinen Information und sind keine Rechtsberatung. Für Richtigkeit,
+Vollständigkeit, Aktualität und Eignung wird keine Gewähr übernommen.
+
+Soweit gesetzlich zulässig, wird keine Haftung für Schäden, Datenverluste, entgangenen Gewinn,
+Betriebsunterbrechungen, Kontosperren, Kontokündigungen, Abrechnungen oder sonstige Nachteile
+übernommen, die aus der Nutzung oder Nichtnutzung dieser Software entstehen – auch bei
+Kenntnis der Möglichkeit solcher Schäden. Die Nutzung erfolgt auf eigenes Risiko.
+
+</details>
 
 ## Legal
 
