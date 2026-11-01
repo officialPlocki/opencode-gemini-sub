@@ -22,6 +22,7 @@ import { login } from "./oauth.ts";
 import { parseOptions } from "./options.ts";
 import { createProfiles, type Profile } from "./profiles.ts";
 import { startProxy, type ProxyHandle } from "./proxy.ts";
+import { computeSessionStats, type SessionStats, type StatsMessage } from "./stats.ts";
 import { GeminiSubRpc, type ProfileStatus, type StatusPayload } from "./rpc.ts";
 
 type CommandContext = { sessionID: string; prompt?: { text?: string } };
@@ -36,6 +37,7 @@ interface Runtime {
   limits: QuotaLimit[];
   quotaFetchedAt: number;
   quotaInFlight: boolean;
+  lastCompleted: number;
   loginInFlight: boolean;
 }
 
@@ -185,6 +187,7 @@ export default Plugin.define({
         limits: [],
         quotaFetchedAt: 0,
         quotaInFlight: false,
+        lastCompleted: 0,
         loginInFlight: false,
       };
       runtimes.push(runtime);
@@ -226,7 +229,7 @@ export default Plugin.define({
     const refreshLimits = async (runtime: Runtime, force = false): Promise<void> => {
       if (!runtime.credentials.signedIn) return;
       if (runtime.quotaInFlight) return;
-      if (!force && Date.now() - runtime.quotaFetchedAt < 60_000) return;
+      if (!force && Date.now() - runtime.quotaFetchedAt < 10_000) return;
       runtime.quotaInFlight = true;
       try {
         runtime.limits = await runtime.client.quotaLimits();
@@ -296,10 +299,34 @@ export default Plugin.define({
       }),
     });
 
+    const statsCache = new Map<string, { at: number; value: SessionStats }>();
+
     await ctx.rpc.register(GeminiSubRpc, {
       status: async () => {
-        for (const runtime of runtimes) void refreshLimits(runtime);
+        // Refresh quotas after every completed request, and at most every 10 s
+        // while idle, so percentages and reset countdowns stay current.
+        await Promise.all(
+          runtimes.map(async (runtime) => {
+            const completed = runtime.proxy.state().completed;
+            const progressed = completed !== runtime.lastCompleted;
+            runtime.lastCompleted = completed;
+            await refreshLimits(runtime, progressed);
+          }),
+        );
         return buildStatus();
+      },
+      stats: async (input) => {
+        const sessionID = (input as { sessionID?: string }).sessionID ?? "";
+        const cached = statsCache.get(sessionID);
+        if (cached && Date.now() - cached.at < 3_000) return cached.value;
+        const messages = await ctx.session.context({ sessionID });
+        const value = computeSessionStats(messages as unknown as StatsMessage[]);
+        if (statsCache.size > 50) {
+          const oldest = [...statsCache.entries()].sort((left, right) => left[1].at - right[1].at)[0];
+          if (oldest) statsCache.delete(oldest[0]);
+        }
+        statsCache.set(sessionID, { at: Date.now(), value });
+        return value;
       },
     });
 

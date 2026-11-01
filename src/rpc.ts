@@ -45,6 +45,13 @@ export interface StatusPayload {
   profiles: ProfileStatus[];
 }
 
+export interface StatsPayload {
+  turns: number;
+  steps: number;
+  outputTokens: number;
+  tokensPerSecond: number;
+}
+
 const limitRow = {
   type: "object",
   properties: {
@@ -61,6 +68,27 @@ const limitRow = {
 export const GeminiSubRpc = Rpc.define({
   id: "gemini-sub",
   methods: {
+    stats: {
+      input: {
+        type: "object",
+        properties: {
+          sessionID: { type: "string" },
+        },
+        required: ["sessionID"],
+        additionalProperties: false,
+      },
+      output: {
+        type: "object",
+        properties: {
+          turns: { type: "number" },
+          steps: { type: "number" },
+          outputTokens: { type: "number" },
+          tokensPerSecond: { type: "number" },
+        },
+        required: ["turns", "steps", "outputTokens", "tokensPerSecond"],
+        additionalProperties: false,
+      },
+    },
     status: {
       input: {
         type: "object",

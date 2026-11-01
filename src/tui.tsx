@@ -6,9 +6,9 @@
  * weekly limit) and whether the proxy is currently parked waiting for a reset.
  */
 
-import { For, Show, createSignal, onCleanup, onMount } from "solid-js";
+import { For, Show, createSignal, on, createEffect, onCleanup, onMount } from "solid-js";
 import { Plugin, usePlugin } from "@opencode/plugin/tui";
-import { GeminiSubRpc, type LimitRow, type ProfileStatus, type StatusPayload } from "./rpc.ts";
+import { GeminiSubRpc, type LimitRow, type ProfileStatus, type StatsPayload, type StatusPayload } from "./rpc.ts";
 
 const POLL_MS = 2_500;
 const BAR_WIDTH = 6;
@@ -45,9 +45,21 @@ function clock(epochMs: number): string {
   return new Date(epochMs).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+function compact(value: number): string {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}k`;
+  return `${Math.round(value)}`;
+}
+
+function rate(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) return "–";
+  return value >= 10 ? `${Math.round(value)}` : value.toFixed(1);
+}
+
 function QuotaPanel(props: { sessionID: string }) {
   const context = usePlugin();
   const [data, setData] = createSignal<StatusPayload>();
+  const [stats, setStats] = createSignal<StatsPayload>();
   const [now, setNow] = createSignal(Date.now());
 
   onMount(() => {
@@ -59,8 +71,16 @@ function QuotaPanel(props: { sessionID: string }) {
       busy = true;
       try {
         const rpc = context.client.rpc(GeminiSubRpc);
-        const result = (await rpc.status({})) as unknown as StatusPayload;
-        if (alive) setData(result);
+        const [statusResult, statsResult] = await Promise.allSettled([
+          rpc.status({}),
+          rpc.stats({ sessionID: props.sessionID }),
+        ]);
+        if (alive && statusResult.status === "fulfilled") {
+          setData(statusResult.value as unknown as StatusPayload);
+        }
+        if (alive && statsResult.status === "fulfilled") {
+          setStats(statsResult.value as unknown as StatsPayload);
+        }
       } catch {
         // Server restarting or plugin unloaded: keep the last data.
       } finally {
@@ -78,6 +98,11 @@ function QuotaPanel(props: { sessionID: string }) {
   });
 
   const selected = () => context.ui.model.current();
+
+  createEffect(on(() => props.sessionID, () => {
+    setData(undefined);
+    setStats(undefined);
+  }));
 
   const activeProfile = (): ProfileStatus | undefined => {
     const model = selected();
@@ -181,6 +206,19 @@ function QuotaPanel(props: { sessionID: string }) {
           </Show>
           <Show when={profile().limits.length === 0}>
             <text fg={context.theme.text.faint}>no limit data yet</text>
+          </Show>
+          <Show when={stats()}>
+            {(value) => (
+              <Show when={value().steps > 0 || value().turns > 0}>
+                <text fg={context.theme.text.faint}>STATS</text>
+                <text fg={context.theme.text.muted}>
+                  {`${compact(value().turns)} turns · ${compact(value().steps)} steps`}
+                </text>
+                <text fg={context.theme.text.muted}>
+                  {`${rate(value().tokensPerSecond)} tok/s · ${compact(value().outputTokens)} tok`}
+                </text>
+              </Show>
+            )}
           </Show>
           <Show when={!profile().autoContinue}>
             <text fg={context.theme.text.muted}>auto-continue off</text>
