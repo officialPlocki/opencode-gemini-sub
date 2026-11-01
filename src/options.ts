@@ -26,6 +26,8 @@ export interface PluginOptions {
   concurrency: number;
   /** Import `~/.gemini/oauth_creds.json` when no credentials are stored. */
   importGeminiCLI: boolean;
+  /** Ask Gemini models to return thought summaries (`includeThoughts`). */
+  includeThoughts: boolean;
   /** Send usage metrics to Google like the CLI does. */
   telemetry: boolean;
   /** Emulated `User-Agent`. */
@@ -52,6 +54,7 @@ export const DEFAULT_OPTIONS: PluginOptions = {
   keepAliveMs: 15_000,
   concurrency: 2,
   importGeminiCLI: true,
+  includeThoughts: true,
   telemetry: false,
   mock: false,
   debug: false,
@@ -86,6 +89,7 @@ export function parseOptions(input: unknown): PluginOptions {
     keepAliveMs: Math.max(1_000, num(raw["keepAliveMs"], DEFAULT_OPTIONS.keepAliveMs, 1_000)),
     concurrency: Math.max(1, Math.floor(num(raw["concurrency"], DEFAULT_OPTIONS.concurrency, 1))),
     importGeminiCLI: bool(raw["importGeminiCLI"], DEFAULT_OPTIONS.importGeminiCLI),
+    includeThoughts: bool(raw["includeThoughts"], DEFAULT_OPTIONS.includeThoughts),
     telemetry: bool(raw["telemetry"], DEFAULT_OPTIONS.telemetry),
     userAgent: typeof raw["userAgent"] === "string" ? raw["userAgent"] : undefined,
     endpoint: typeof raw["endpoint"] === "string" ? raw["endpoint"] : undefined,

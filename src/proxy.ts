@@ -34,6 +34,7 @@ export interface ProxyState {
   completed: number;
   failures: number;
   quotaWaits: number;
+  thoughts: number;
   lastError?: string;
   lastErrorAt?: number;
   lastResetAt?: number;
@@ -107,6 +108,32 @@ function makeSecret(): string {
 }
 
 const PASSTHROUGH_PARTS = new Set(["contents", "systemInstruction", "tools", "toolConfig", "safetySettings", "generationConfig", "labels", "cachedContent", "serviceTier"]);
+
+/**
+ * Ask Gemini models for thought summaries. Claude and GPT-OSS reject the
+ * Gemini `thinkingConfig` field, so it is only added to Gemini models that the
+ * catalogue marks as thinking-capable.
+ */
+export function withThoughts(
+  body: Record<string, unknown>,
+  modelID: string,
+  models: readonly GeminiModel[],
+  enabled: boolean,
+): Record<string, unknown> {
+  if (!enabled) return body;
+  const id = normalizeModelID(modelID);
+  if (!/^gemini/i.test(id)) return body;
+  const model = models.find((entry) => entry.id === id);
+  if (model && model.thinking === false) return body;
+
+  const generationConfig = { ...((body["generationConfig"] as Record<string, unknown> | undefined) ?? {}) };
+  const thinkingConfig = { ...((generationConfig["thinkingConfig"] as Record<string, unknown> | undefined) ?? {}) };
+  // Force it: some clients send `includeThoughts: false` by default, which
+  // would suppress the thought text even though the user wants it.
+  thinkingConfig["includeThoughts"] = true;
+  generationConfig["thinkingConfig"] = thinkingConfig;
+  return { ...body, generationConfig };
+}
 
 /** Remove transport-only fields and anything the backend would reject. */
 export function sanitizeGeminiRequest(body: Record<string, unknown>): Record<string, unknown> {
@@ -250,6 +277,7 @@ export async function startProxy(options: StartProxyOptions): Promise<ProxyHandl
     completed: 0,
     failures: 0,
     quotaWaits: 0,
+    thoughts: 0,
     startedAt: Date.now(),
     lastError: undefined as string | undefined,
     lastErrorAt: undefined as number | undefined,
@@ -367,6 +395,7 @@ export async function startProxy(options: StartProxyOptions): Promise<ProxyHandl
               return;
             }
             for (const frame of unwrapper.push(decoder.decode(value, { stream: true }))) {
+              if (frame.includes('"thought":true')) stats.thoughts += 1;
               if (!write(response, frame)) {
                 await reader.cancel().catch(() => {});
                 return;
@@ -440,7 +469,12 @@ export async function startProxy(options: StartProxyOptions): Promise<ProxyHandl
   ): Promise<void> {
     stats.requests += 1;
     const raw = await readBody(request);
-    const body = sanitizeGeminiRequest(parseBody(raw));
+    const body = withThoughts(
+      sanitizeGeminiRequest(parseBody(raw)),
+      modelID,
+      listModels(),
+      config.includeThoughts,
+    );
 
     // Resolve the account before sending SSE headers so an unauthenticated
     // request gets a readable HTTP error instead of a silent empty stream.
@@ -498,7 +532,12 @@ export async function startProxy(options: StartProxyOptions): Promise<ProxyHandl
   ): Promise<void> {
     stats.requests += 1;
     const raw = await readBody(request);
-    const body = sanitizeGeminiRequest(parseBody(raw));
+    const body = withThoughts(
+      sanitizeGeminiRequest(parseBody(raw)),
+      modelID,
+      listModels(),
+      config.includeThoughts,
+    );
 
     if (config.mock) {
       const chunks = mockChunks(normalizeModelID(modelID), body);
@@ -650,6 +689,7 @@ export async function startProxy(options: StartProxyOptions): Promise<ProxyHandl
       completed: stats.completed,
       failures: stats.failures,
       quotaWaits: stats.quotaWaits,
+      thoughts: stats.thoughts,
       lastError: stats.lastError,
       lastErrorAt: stats.lastErrorAt,
       lastResetAt: stats.lastResetAt,

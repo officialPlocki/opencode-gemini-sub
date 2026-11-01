@@ -35,6 +35,7 @@ export interface ProfileStatus {
   completed: number;
   failures: number;
   quotaWaits: number;
+  thoughts: number;
   lastError: string;
   limits: LimitRow[];
   unavailable: { name: string; reason: string }[];
@@ -118,6 +119,7 @@ export const GeminiSubRpc = Rpc.define({
                 completed: { type: "number" },
                 failures: { type: "number" },
                 quotaWaits: { type: "number" },
+                thoughts: { type: "number" },
                 lastError: { type: "string" },
                 limits: { type: "array", items: limitRow },
                 unavailable: {
@@ -148,6 +150,7 @@ export const GeminiSubRpc = Rpc.define({
                 "completed",
                 "failures",
                 "quotaWaits",
+                "thoughts",
                 "lastError",
                 "limits",
                 "unavailable",

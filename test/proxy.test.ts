@@ -3,7 +3,8 @@ import { test } from "node:test";
 import { type CodeAssistClient } from "../src/codeassist.ts";
 import type { CredentialManager } from "../src/credentials.ts";
 import { parseOptions } from "../src/options.ts";
-import { sanitizeGeminiRequest, startProxy } from "../src/proxy.ts";
+import { sanitizeGeminiRequest, startProxy, withThoughts } from "../src/proxy.ts";
+import { ANTIGRAVITY_FALLBACK_MODELS } from "../src/profiles.ts";
 
 function fakeCredentials(): CredentialManager {
   return {
@@ -317,4 +318,36 @@ test("builds Antigravity envelopes with requestId and userAgent", async () => {
   assert.equal(typeof envelope["requestId"], "string");
   assert.equal(envelope["user_prompt_id"], undefined);
   assert.equal(envelope["session_id"], undefined);
+});
+
+
+test("asks Gemini thinking models for thought summaries", () => {
+  const body = { contents: [], generationConfig: { temperature: 0.2 } };
+  const result = withThoughts(body, "gemini-3.8-flash-medium", ANTIGRAVITY_FALLBACK_MODELS, true);
+  const config = result["generationConfig"] as Record<string, unknown>;
+  assert.equal(config["temperature"], 0.2);
+  assert.equal((config["thinkingConfig"] as Record<string, unknown>)["includeThoughts"], true);
+});
+
+test("overrides a client-side includeThoughts:false when enabled", () => {
+  const result = withThoughts(
+    { contents: [], generationConfig: { thinkingConfig: { includeThoughts: false } } },
+    "gemini-3.8-flash-low",
+    ANTIGRAVITY_FALLBACK_MODELS,
+    true,
+  );
+  const config = result["generationConfig"] as Record<string, unknown>;
+  assert.equal((config["thinkingConfig"] as Record<string, unknown>)["includeThoughts"], true);
+});
+
+test("leaves requests untouched when includeThoughts is disabled", () => {
+  const body = { contents: [] };
+  assert.deepEqual(withThoughts(body, "gemini-3.8-flash-low", ANTIGRAVITY_FALLBACK_MODELS, false), body);
+});
+
+test("does not send Gemini thinkingConfig to Claude or GPT-OSS", () => {
+  for (const model of ["claude-sonnet-4-6", "gpt-oss-120b-medium"]) {
+    const result = withThoughts({ contents: [] }, model, ANTIGRAVITY_FALLBACK_MODELS, true);
+    assert.deepEqual(result, { contents: [] });
+  }
 });

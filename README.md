@@ -55,6 +55,7 @@ OpenCode ──Gemini REST──▶ loopback proxy ──Cloud Code Assist──
 | --- | --- |
 | **Zero-loss tool calling** | OpenCode's Gemini payload passes through untouched: `tools`, `parametersJsonSchema`, `functionCall`/`functionResponse`, `thoughtSignature` |
 | **Streaming** | Native SSE, unwrapped from the Code Assist envelope by an incremental parser |
+| **Thinking** | Requests ask for Gemini thought summaries (`includeThoughts`). Whether text arrives is up to the gateway; see [Thinking](#thinking) |
 | **Model discovery** | `fetchAvailableModels` for Antigravity; ids, names, context/output limits and image support come from your account |
 | **Two account limits** | 5-hour window and weekly limit per pool (`retrieveUserQuotaSummary`), not per-model noise |
 | **Auto-continue** | On quota errors the request stays open, the gate wakes at the reset timestamp, then the same request resumes |
@@ -247,6 +248,7 @@ Persistent default:
 | `projectId` | resolved | Force a Cloud project |
 | `models` | built-in + discovery | Add or override model metadata |
 | `dataDir` | `~/.local/share/opencode-gemini-sub` | Credential directory |
+| `includeThoughts` | `true` | Ask Gemini models for thought summaries (Claude/GPT-OSS never get this field) |
 | `telemetry` | `false` | Send usage metrics like the original client |
 | `mock` | `false` | Canned responses, development only |
 | `debug` | `false` | Log proxy decisions |
@@ -267,6 +269,23 @@ claude-sonnet-4-6 | claude-opus-4-6-thinking | gpt-oss-120b-medium
 Interna (`chat_*`, `tab_*`), aliases (`gemini-2.5-*`), image and disabled entries are filtered.
 Availability is account-specific: Google serves different ids to different plans, and models
 such as `gemini-4-argon-disabled` stay hidden until the backend enables them.
+
+## Thinking
+
+The plugin sets `generationConfig.thinkingConfig.includeThoughts = true` for Gemini models (never for Claude or GPT-OSS, which reject the field). Reviving the text in the transcript also needs the CLI setting:
+
+```json title="~/.config/opencode/cli.json"
+{
+  "session": {
+    "thinking": "show",
+    "tps": true
+  }
+}
+```
+
+`session.tps` shows output tokens per second in assistant footers.
+
+**Gateway limitation:** for tool-enabled requests the Antigravity backend often returns a thought part with empty text — a signature carrier, not a summary. I verified this against the API: the same request without tools returns a readable summary, with tools the only thought part has `text: ""`. Some models (for example `gemini-3-flash` or `gemini-3.1-flash-lite`) are more generous than the 3.8 Flash family, but no client-side change can create text the backend does not send.
 
 ## Troubleshooting
 

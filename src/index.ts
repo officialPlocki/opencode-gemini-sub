@@ -292,6 +292,7 @@ export default Plugin.define({
           completed: state.completed,
           failures: state.failures,
           quotaWaits: state.quotaWaits,
+          thoughts: state.thoughts,
           lastError: state.lastError ?? "",
           limits: runtime.limits.map((limit) => ({ ...limit })),
           unavailable: runtime.unavailable.map((entry) => ({ ...entry })),
