@@ -209,7 +209,7 @@ function QuotaPanel(props: { sessionID: string }) {
           </Show>
           <Show when={stats()}>
             {(value) => (
-              <Show when={value().steps > 0 || value().turns > 0}>
+              <Show when={value().outputTokens > 0}>
                 <text fg={context.theme.text.faint}>STATS</text>
                 <text fg={context.theme.text.muted}>
                   {`${compact(value().turns)} turns · ${compact(value().steps)} steps`}
